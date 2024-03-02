@@ -92,7 +92,7 @@ export class K8SResolver implements grpc.experimental.Resolver {
     this.#lastNotifyTimeMS = Date.now();
 
     const endpoints = this.getEndpoints();
-    logger.debug?.(`mapped ${this.#serviceName} ${this.#portName} -> ${JSON.stringify(endpoints)}`);
+    logger.debug?.(`mapped ${this.#serviceName} ${this.#portName}`, endpoints);
 
     if (endpoints.length > 0) {
       this.#listener.onSuccessfulResolution(

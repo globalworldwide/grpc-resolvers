@@ -64,7 +64,7 @@ function hasListeners(): boolean {
 }
 
 function normalizeEndpointSlice(endpointSlice: k8s.V1EndpointSlice): Endpoint | undefined {
-  logger.debug?.(`endpoint slice = ${JSON.stringify(endpointSlice)}`);
+  logger.debug?.('endpoint slice', endpointSlice);
   const endpointName = endpointSlice.metadata?.name;
   if (!endpointName) {
     return undefined;
@@ -159,13 +159,13 @@ async function startWatch(): Promise<void> {
         notifyListeners(endpoint.serviceName);
       },
       (e) => {
-        logger.error?.(`watch terminated ${e.message}`);
+        logger.errorError?.(e, 'watch terminated');
         backoffWatch();
       },
     );
   } catch (e) {
     // swallow all errors in the watch
-    logger.error?.(`watch start error ${e.message}`);
+    logger.errorError?.(e, 'watch start error');
     backoffWatch();
   }
 }
@@ -185,7 +185,7 @@ function stopWatch(): void {
     }
   } catch (e) {
     // swallow errors attempting to stop the watch, nothing we can do about it
-    logger.error?.(`watch stop error: ${e.message}`);
+    logger.errorError?.(e, 'watch stop error');
   }
   watch = undefined;
   watchRequest = undefined;
