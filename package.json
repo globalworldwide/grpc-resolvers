@@ -4,23 +4,14 @@
   "type": "module",
   "exports": {
     ".": {
-      "import": "./dist/index.js"
-    },
-    "./fixed-resolver": {
-      "import": "./dist/fixed-resolver.js"
-    },
-    "./k8s-resolver": {
-      "import": "./dist/k8s-resolver.js"
-    },
-    "./well-known-channel-options": {
-      "import": "./dist/well-known-channel-options.js"
-    }
-  },
-  "typesVersions": {
-    "*": {
-      "*": [
-        "dist/*"
-      ]
+      "import": {
+        "types": "./dist/esm/index.d.ts",
+        "default": "./dist/esm/index.js"
+      },
+      "require": {
+        "types": "./dist/cjs/index.d.ts",
+        "default": "./dist/cjs/index.js"
+      }
     }
   },
   "files": [
@@ -45,7 +36,8 @@
     "url": "git+https://github.com/globalworldwide/grpc-resolvers.git"
   },
   "scripts": {
-    "build": "tsc --build",
+    "prebuild": "npm run clean",
+    "build": "./scripts/build.sh",
     "clean": "rimraf dist",
     "format:check": "npm run format:core -- --check",
     "format:core": "prettier --cache \"src/**/*.ts\"",
@@ -62,5 +54,8 @@
     "prettier": "^3.2.5",
     "rimraf": "^5.0.5",
     "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=20.0.0"
   }
 }
