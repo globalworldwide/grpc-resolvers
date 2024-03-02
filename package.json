@@ -1,0 +1,56 @@
+{
+  "name": "@globalworldwide/grpc-resolvers",
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js"
+    },
+    "./channel-options": {
+      "import": "./dist/channel-options.js"
+    },
+    "./fixed-resolver": {
+      "import": "./dist/fixed-resolver.js"
+    },
+    "./k8s-resolver": {
+      "import": "./dist/k8s-resolver.js"
+    }
+  },
+  "description": "Custom resolvers for @grpc/grpc-js",
+  "author": "Matthew Douglass <matthew@globalworldwide.com>",
+  "bugs": {
+    "url": "https://github.com/globalworldwide/grpc-resolvers/issues"
+  },
+  "homepage": "https://github.com/globalworldwide/grpc-resolvers#readme",
+  "keywords": [
+    "grpc-js",
+    "grpc",
+    "k8s",
+    "kubernetes",
+    "resolver"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/globalworldwide/grpc-resolvers.git"
+  },
+  "scripts": {
+    "build": "tsc --build",
+    "clean": "rimraf dist",
+    "format:check": "npm run format:core -- --check",
+    "format:core": "prettier --cache \"src/**/*.ts\"",
+    "format:fix": "npm run format:core -- --write",
+    "prepublishOnly": "npm run format:check && npm run build"
+  },
+  "dependencies": {
+    "@grpc/grpc-js": "^1.10.1",
+    "@kubernetes/client-node": "^1.0.0-rc4",
+    "lodash.shuffle": "^4.2.0"
+  },
+  "devDependencies": {
+    "@types/lodash.shuffle": "^4.2.9",
+    "prettier": "^3.2.5",
+    "rimraf": "^5.0.5",
+    "typescript": "^5.3.3"
+  }
+}
