@@ -6,14 +6,14 @@
     ".": {
       "import": "./dist/index.js"
     },
-    "./channel-options": {
-      "import": "./dist/channel-options.js"
-    },
     "./fixed-resolver": {
       "import": "./dist/fixed-resolver.js"
     },
     "./k8s-resolver": {
       "import": "./dist/k8s-resolver.js"
+    },
+    "./well-known-channel-options": {
+      "import": "./dist/well-known-channel-options.js"
     }
   },
   "typesVersions": {

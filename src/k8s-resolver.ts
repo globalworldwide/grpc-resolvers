@@ -4,7 +4,7 @@ import { uriToString } from '@grpc/grpc-js/build/src/uri-parser.js';
 import type { K8SListener } from './internal/k8s-watch.js';
 import * as k8sWatch from './internal/k8s-watch.js';
 import { makeLogger } from './internal/logging.js';
-import { ChannelOptions } from './channel-options.js';
+import { WellKnownChannelOptions } from './well-known-channel-options.js';
 
 const logger = makeLogger('k8s-resolver');
 
@@ -38,7 +38,7 @@ export class K8SResolver implements grpc.experimental.Resolver {
       metadata: new grpc.Metadata(),
     };
     this.#serviceName = K8SResolver.getDefaultAuthority(this.#target);
-    this.#portName = channelOptions[ChannelOptions.portName] ?? 'grpc';
+    this.#portName = channelOptions[WellKnownChannelOptions.portName] ?? 'grpc';
     // this.#channelOptions = channelOptions
 
     this.#watch = this.onWatchChange.bind(this);

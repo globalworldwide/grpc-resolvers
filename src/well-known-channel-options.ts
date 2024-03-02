@@ -1,4 +1,4 @@
-export enum ChannelOptions {
+export enum WellKnownChannelOptions {
   /**
    * The name of the port to search the kubernetes endpoint slice for.
    * type: string

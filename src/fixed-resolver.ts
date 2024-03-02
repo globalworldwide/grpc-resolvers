@@ -1,5 +1,5 @@
 import * as grpc from '@grpc/grpc-js';
-import { ChannelOptions } from './channel-options.js';
+import { WellKnownChannelOptions } from './well-known-channel-options.js';
 import { makeLogger } from './internal/logging.js';
 
 const logger = makeLogger('fixed-resolver');
@@ -26,9 +26,9 @@ export class FixedResolver implements grpc.experimental.Resolver {
     this.#listener = listener;
     // this.#channelOptions = channelOptions;
 
-    this.authorityMap = channelOptions[ChannelOptions.authorityMap] ?? {};
+    this.authorityMap = channelOptions[WellKnownChannelOptions.authorityMap] ?? {};
     this.#minTimeBetweenResolutionsMS =
-      channelOptions[ChannelOptions.minTimeBetweenResolutionsMS] ?? 1000;
+      channelOptions[WellKnownChannelOptions.minTimeBetweenResolutionsMS] ?? 1000;
   }
 
   public updateResolution(): void {
