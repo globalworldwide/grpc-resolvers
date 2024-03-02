@@ -16,6 +16,11 @@
       "import": "./dist/k8s-resolver.js"
     }
   },
+  "typesVersions": {
+    "*": {
+      "*": [ "dist/*" ]
+    }
+  },
   "files": [
     "dist/**"
   ],
