@@ -10,7 +10,12 @@ const logger = makeLogger('k8s-resolver');
 
 export class K8SResolver implements grpc.experimental.Resolver {
   public static getDefaultAuthority(target: grpc.experimental.GrpcUri): string {
-    return target.path;
+    return K8SResolver.parseHostPort(target)[0];
+  }
+
+  private static parseHostPort(target: grpc.experimental.GrpcUri): [string, string | undefined] {
+    const [host, port] = target.path.split(':');
+    return [host as string, port];
   }
 
   readonly #target: grpc.experimental.GrpcUri;
@@ -38,6 +43,8 @@ export class K8SResolver implements grpc.experimental.Resolver {
       metadata: new grpc.Metadata(),
     };
     this.#serviceName = K8SResolver.getDefaultAuthority(this.#target);
+    // MSED - I would like this to use the port from the target first and foremost,
+    // but that doesn't work for us yet. Will switch once we drop the dns resolver.
     this.#portName = channelOptions[WellKnownChannelOptions.portName] ?? 'grpc';
     // this.#channelOptions = channelOptions
 
