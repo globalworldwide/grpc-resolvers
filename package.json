@@ -1,10 +1,6 @@
 {
   "name": "@globalworldwide/grpc-resolvers",
   "version": "0.2.1",
-  "type": "module",
-  "main": "dist/cjs/index.js",
-  "module": "dist/esm/index.js",
-  "types": "dist/esm/index.d.ts",
   "exports": {
     ".": {
       "import": {
@@ -39,13 +35,14 @@
     "url": "git+https://github.com/globalworldwide/grpc-resolvers.git"
   },
   "scripts": {
-    "prebuild": "npm run clean",
-    "build": "./scripts/build.sh",
     "clean": "rimraf dist",
+    "prebuild": "npm run clean",
+    "build": "node ./scripts/build.mjs",
     "format:check": "npm run format:core -- --check",
-    "format:core": "prettier --cache \"src/**/*.ts\"",
+    "format:core": "prettier --cache 'src/**/*.ts' 'scripts/**/*.mjs'",
     "format:fix": "npm run format:core -- --write",
-    "prepublishOnly": "npm run format:check && npm run build"
+    "check": "npm run format:check",
+    "prepublishOnly": "npm run check && npm run build"
   },
   "dependencies": {
     "@grpc/grpc-js": "^1.10.1",
@@ -54,6 +51,8 @@
   },
   "devDependencies": {
     "@types/lodash.shuffle": "^4.2.9",
+    "esbuild": "^0.20.1",
+    "esbuild-plugin-d.ts": "^1.2.3",
     "prettier": "^3.2.5",
     "rimraf": "^5.0.5",
     "typescript": "^5.3.3"
