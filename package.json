@@ -16,6 +16,9 @@
       "import": "./dist/k8s-resolver.js"
     }
   },
+  "files": [
+    "dist/**"
+  ],
   "description": "Custom resolvers for @grpc/grpc-js",
   "author": "Matthew Douglass <matthew@globalworldwide.com>",
   "bugs": {
