@@ -28,7 +28,8 @@ export class K8SResolver implements grpc.experimental.Resolver {
 
   #lastNotifyTimeMS = 0;
   #timeoutId: NodeJS.Timeout | undefined = undefined;
-  #hasEndpoints: boolean;
+  #hasEndpoints = false
+  #watchListenerRegistered = false;
 
   constructor(
     target: grpc.experimental.GrpcUri,
@@ -37,6 +38,7 @@ export class K8SResolver implements grpc.experimental.Resolver {
   ) {
     this.#target = target;
     this.#listener = listener;
+    this.#watch = this.onWatchChange.bind(this);
     this.#defaultResolutionError = {
       code: grpc.status.UNAVAILABLE,
       details: `No endpoints available for target ${uriToString(this.#target)}`,
@@ -47,14 +49,15 @@ export class K8SResolver implements grpc.experimental.Resolver {
     // but that doesn't work for us yet. Will switch once we drop the dns resolver.
     this.#portName = channelOptions[WellKnownChannelOptions.portName] ?? 'grpc';
     // this.#channelOptions = channelOptions
-
-    this.#watch = this.onWatchChange.bind(this);
-    k8sWatch.addListener(this.#serviceName, this.#watch);
-
-    this.#hasEndpoints = this.hasEndpoints();
   }
 
   public updateResolution(): void {
+    if (!this.#watchListenerRegistered) {
+      k8sWatch.addListener(this.#serviceName, this.#watch);
+      this.#watchListenerRegistered = true;
+      this.#hasEndpoints = this.hasEndpoints();
+    }
+
     // do not notify until we've seen an update from the k8s watch at least once
     if (!this.#hasEndpoints) {
       return;
@@ -65,7 +68,7 @@ export class K8SResolver implements grpc.experimental.Resolver {
     // resolve more than once every 250ms
     if (!this.#timeoutId) {
       const nowMS = Date.now();
-      const delayMS = Math.max(0, 250 - (nowMS - this.#lastNotifyTimeMS)); // never resolve more than once every 500ms
+      const delayMS = Math.max(0, 250 - (nowMS - this.#lastNotifyTimeMS));
       this.#timeoutId = setTimeout(this.onTimeout.bind(this), delayMS);
     }
   }
@@ -74,6 +77,7 @@ export class K8SResolver implements grpc.experimental.Resolver {
     clearTimeout(this.#timeoutId);
     this.#timeoutId = undefined;
     this.#lastNotifyTimeMS = 0;
+    this.#watchListenerRegistered = false;
 
     k8sWatch.removeListener(this.#serviceName, this.#watch);
   }
