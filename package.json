@@ -45,7 +45,7 @@
     "prepublishOnly": "npm run check && npm run build"
   },
   "dependencies": {
-    "@grpc/grpc-js": "^1.10.1",
+    "@grpc/grpc-js": "^1.11.1",
     "@kubernetes/client-node": "^1.0.0-rc6",
     "lodash.shuffle": "^4.2.0"
   },
