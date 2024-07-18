@@ -2,7 +2,7 @@ import * as k8s from '@kubernetes/client-node';
 import shuffle from 'lodash.shuffle';
 import { makeLogger } from './logging.js';
 
-const logger = makeLogger('k8s-resolver');
+const logger = makeLogger('k8s-watch');
 
 export type K8SListener = () => void;
 
