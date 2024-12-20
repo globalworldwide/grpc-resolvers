@@ -46,7 +46,7 @@
   },
   "dependencies": {
     "@grpc/grpc-js": "^1.12.5",
-    "@kubernetes/client-node": "^1.0.0-rc7",
+    "@kubernetes/client-node": "^1.0.0",
     "lodash.shuffle": "^4.2.0"
   },
   "devDependencies": {
