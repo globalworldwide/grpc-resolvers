@@ -1,6 +1,7 @@
 import * as grpc from '@grpc/grpc-js';
 import { WellKnownChannelOptions } from './well-known-channel-options.js';
 import { makeLogger } from './internal/logging.js';
+import { statusOrFromValue } from '@grpc/grpc-js/build/src/call-interface.js';
 
 const logger = makeLogger('fixed-resolver');
 
@@ -77,6 +78,6 @@ export class FixedResolver implements grpc.experimental.Resolver {
     const endpoint: grpc.experimental.Endpoint = { addresses: [{ host, port }] };
 
     logger.debug?.(`mapped ${this.#target.path} to ${host}:${port}`);
-    this.#listener.onSuccessfulResolution([endpoint], null, null, null, {});
+    this.#listener(statusOrFromValue([endpoint]), {}, null, '');
   }
 }

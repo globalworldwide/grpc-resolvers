@@ -5,6 +5,7 @@ import type { K8SListener } from './internal/k8s-watch.js';
 import * as k8sWatch from './internal/k8s-watch.js';
 import { makeLogger } from './internal/logging.js';
 import { WellKnownChannelOptions } from './well-known-channel-options.js';
+import { statusOrFromError, statusOrFromValue } from '@grpc/grpc-js/build/src/call-interface.js';
 
 const logger = makeLogger('k8s-resolver');
 
@@ -106,15 +107,14 @@ export class K8SResolver implements grpc.experimental.Resolver {
     logger.debug?.(`mapped ${this.#serviceName} ${this.#portName}`, endpoints);
 
     if (endpoints.length > 0) {
-      this.#listener.onSuccessfulResolution(
-        endpoints,
-        { loadBalancingConfig: [{ round_robin: {} }], methodConfig: [] },
-        null,
-        null,
+      this.#listener(
+        statusOrFromValue(endpoints),
         {},
+        statusOrFromValue({ loadBalancingConfig: [{ round_robin: {} }], methodConfig: [] }),
+        '',
       );
     } else {
-      this.#listener.onError(this.#defaultResolutionError);
+      this.#listener(statusOrFromError(this.#defaultResolutionError), {}, null, '');
     }
   }
 
