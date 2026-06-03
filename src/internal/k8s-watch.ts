@@ -12,6 +12,16 @@ const listenersByServiceName = new Map<string, Set<K8SListener>>();
 const endpointsByEndpointName = new Map<string, Endpoint>();
 const grpcEndpointByServiceName = new Map<string, GrpcEndpoint[]>();
 
+// Cached instances reused across startWatch() calls to avoid creating new
+// https.Agent (and therefore new sockets) on every watch reconnection.
+// Previously, each startWatch() call created fresh KubeConfig, DiscoveryV1Api,
+// and Watch instances, each producing a new https.Agent via KubeConfig.createAgent().
+// Since the old agents were never destroyed, their sockets leaked file descriptors.
+let kc: k8s.KubeConfig | undefined;
+let discoveryApi: k8s.DiscoveryV1Api | undefined;
+let watchInstance: k8s.Watch | undefined;
+let watchNamespace: string | undefined;
+
 type EndpointPort = { portName: string; port: number };
 
 type Endpoint = {
@@ -95,17 +105,24 @@ async function startWatch(): Promise<void> {
       return;
     }
 
-    // load kubeconfig from default location and determine namespace
-    const kc = new k8s.KubeConfig();
-    kc.loadFromDefault();
-    const namespace = kc.contexts[0]?.namespace;
-    if (!namespace) {
-      throw new Error('No namespace found in KubeConfig');
+    // Cache KubeConfig and related clients to avoid creating new https.Agent
+    // instances on every watch reconnection, which causes socket/FD leaks.
+    if (!kc || !discoveryApi || !watchInstance || !watchNamespace) {
+      kc = new k8s.KubeConfig();
+      kc.loadFromDefault();
+      const ns = kc.contexts[0]?.namespace;
+      if (!ns) {
+        throw new Error('No namespace found in KubeConfig');
+      }
+      watchNamespace = ns;
+      discoveryApi = kc.makeApiClient(k8s.DiscoveryV1Api);
+      watchInstance = new k8s.Watch(kc);
     }
 
     // get an initial list of endpoint slices
-    const discoveryApi = kc.makeApiClient(k8s.DiscoveryV1Api);
-    const endpointSlices = await discoveryApi.listNamespacedEndpointSlice({ namespace });
+    const endpointSlices = await discoveryApi.listNamespacedEndpointSlice({
+      namespace: watchNamespace,
+    });
 
     // save a copy of the old endpoint map
     const oldEndpoints = new Map(endpointsByEndpointName);
@@ -136,10 +153,10 @@ async function startWatch(): Promise<void> {
       notifyListeners(changedServiceName);
     }
 
-    // no start the watch, picking up from where the initial list left off
-    watch = new k8s.Watch(kc);
+    // now start the watch, picking up from where the initial list left off
+    watch = watchInstance;
     watchRequest = await watch.watch(
-      `/apis/discovery.k8s.io/v1/namespaces/${namespace}/endpointslices`,
+      `/apis/discovery.k8s.io/v1/namespaces/${watchNamespace}/endpointslices`,
       { resourceVersion: endpointSlices.metadata?.resourceVersion },
       (type, apiObj) => {
         // convert to endpoints
