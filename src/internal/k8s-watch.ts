@@ -49,9 +49,10 @@ export function removeListener(serviceName: string, listener: K8SListener): void
   listeners.delete(listener);
   if (listeners.size === 0) {
     listenersByServiceName.delete(serviceName);
-
-    // MSED do we want to stop here?
-    stopWatch();
+    // Only stop the watch when ALL services have no listeners remaining
+    if (listenersByServiceName.size === 0) {
+      stopWatch();
+    }
   }
 }
 
